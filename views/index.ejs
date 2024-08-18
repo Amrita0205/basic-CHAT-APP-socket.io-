@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            background-color: #43173c;
+            color: rgb(254, 223, 255);
+        }
+
+        .title-contain {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .col {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        
+        <div class="title-contain">
+            <h1>Chat</h1>
+        </div>
+        <div class="col">
+            <ul id="messages" class="list-unstyled"></ul>
+            <form id="form">
+                <input id="input" autocomplete="off" /><button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var socket = io(); // Initialize socket.io connection
+
+            // Handle form submission
+            $('#form').submit(function(e) {
+                e.preventDefault(); // Prevent the default form submission
+                var message = $('#input').val().trim();
+                if (message) {
+                    socket.emit('chat message', message); // Send message to server
+                    $('#input').val(''); // Clear input field
+                }
+            });
+
+            // Receive chat messages from the server
+            socket.on('chat message', function(msg) {
+                $('#messages').append($('<li>').text(msg));
+            });
+
+            // Initialize the chat with previous messages
+            socket.on('init', function(messages) {
+                messages.insertOne({ content: "Hello World", createdAt: new Date() })
+
+                messages.forEach(function(msg) {
+                    $('#messages').append($('<li>').text(msg.content));
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
